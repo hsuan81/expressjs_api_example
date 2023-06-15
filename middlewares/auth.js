@@ -32,4 +32,4 @@ function validateRefreshToken(refreshToken) {
     }
   }
 
-module.exports = { authenticateToken, alidateRefreshToken };
+module.exports = { authenticateToken, validateRefreshToken };
