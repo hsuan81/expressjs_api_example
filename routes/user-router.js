@@ -1,10 +1,12 @@
 const express = require('express');
 const router = express.Router();
-const User = require('../model/user')
+const User = require('../models/user')
 const Auth = require('../middlewares/auth')
 
 
-router.get('/:id', Auth.authenticateToken, getUser, (req, res) => {
+// router.get('/:id', Auth.authenticateToken, getUser, (req, res) => {
+router.get('/:id', getUser, (req, res) => {
+
   try {
     res.json(res.user)
   } catch (error) {
@@ -13,7 +15,8 @@ router.get('/:id', Auth.authenticateToken, getUser, (req, res) => {
     
 });
 
-router.post('/', Auth.authenticateToken, async (req, res) => {
+// router.post('/', Auth.authenticateToken, async (req, res) => {
+router.post('/', async (req, res) => {
   
   // 假設新用戶的 ID 是目前數據庫中的用戶數量加一
   const user = new User(req.body)
@@ -34,7 +37,8 @@ router.delete('/:id', Auth.authenticateToken, getUser, async(req, res) => {
     }
 });
 
-router.patch('/:id', Auth.authenticateToken, getUser, async (req, res) => {
+// router.patch('/:id', Auth.authenticateToken, getUser, async (req, res) => {
+router.patch('/:id', getUser, async (req, res) => {
   try {
     // Create a new object that only includes non-null properties from req.body
     const updates = Object.entries(req.body).reduce((a, [k, v]) => (v == null ? a : { ...a, [k]: v }), {});

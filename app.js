@@ -7,6 +7,8 @@ const mongoose = require('mongoose')
 // 創建 Express 應用
 const app = express();
 const userRouters = require('./routes/user-router')
+const deptRouters = require('./routes/dept-router')
+
 
 // Connect to database via mongoose
 mongoose.connect('mongodb://127.0.0.1:27017/api', { useNewUrlParser: true, useUnifiedTopology: true })
@@ -19,6 +21,8 @@ mongoose.connect('mongodb://127.0.0.1:27017/api', { useNewUrlParser: true, useUn
 // 使用 express.json 中間件解析請求體
 app.use(express.json());
 app.use('/users', userRouters)
+app.use('/department', deptRouters)
+
 
 app.post('/login', (req, res) => {
     // Assume you've received username and password from the request body,

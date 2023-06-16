@@ -4,7 +4,7 @@ const app = require('../app'); // 你的app.js或server.js路径
 
 const request = supertest(app);
 
-const User = require('../model/user'); // 你的User model路径
+const User = require('../models/user'); // 你的User model路径
 
 describe('User Model Test', () => {
   // 在测试开始前清空测试数据库
