@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const Role = require('../models/Role');  // 请将这行替换为你的Role模型的实际路径
+const Role = require('../models/role');  // 请将这行替换为你的Role模型的实际路径
 
 // 这是一个用于获取角色的中间件
 async function getRole(req, res, next) {

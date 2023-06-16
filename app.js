@@ -8,6 +8,10 @@ const mongoose = require('mongoose')
 const app = express();
 const userRouters = require('./routes/user-router')
 const deptRouters = require('./routes/dept-router')
+const menuRouters = require('./routes/menu-router')
+const roleRouters = require('./routes/role-router')
+
+
 
 
 // Connect to database via mongoose
@@ -22,6 +26,9 @@ mongoose.connect('mongodb://127.0.0.1:27017/api', { useNewUrlParser: true, useUn
 app.use(express.json());
 app.use('/users', userRouters)
 app.use('/department', deptRouters)
+app.use('/menu', menuRouters)
+app.use('/role', menuRouters)
+
 
 
 app.post('/login', (req, res) => {
