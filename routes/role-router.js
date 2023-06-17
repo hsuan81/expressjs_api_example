@@ -73,4 +73,48 @@ router.get('/list', async (req, res) => {
   }
 });
 
+router.get('/role/:id/menu', async (req, res) => {
+  try {
+      const role = await Role.findById(req.params.id)
+      if (!role) return res.status(404).json({ message: "Role not found" })
+      
+      // Assuming menuList in role stores ids of menus
+      const menus = await Menu.find({ _id: { $in: role.menuList } })
+      return res.status(200).json(menus)
+  } catch(err) {
+      return res.status(500).json({ message: err.message })
+  }
+})
+
+// Get menuIds by role id
+router.get('/role/:id/menuIds', async (req, res) => {
+  try {
+      const role = await Role.findById(req.params.id)
+      if (!role) return res.status(404).json({ message: "Role not found" })
+      
+      // Directly return menuList as it stores ids of menus
+      return res.status(200).json(role.menuList)
+  } catch(err) {
+      return res.status(500).json({ message: err.message })
+  }
+})
+
+
+// Assign menus to role
+router.post('/role/assign', async (req, res) => {
+  const { roleId, menuList } = req.body;
+  try {
+      const role = await Role.findById(roleId)
+      if (!role) return res.status(404).json({ message: "Role not found" })
+
+      // update menuList
+      role.menuList = menuList;
+      await role.save();
+
+      return res.status(200).json({ message: "Menu assigned successfully" })
+  } catch(err) {
+      return res.status(500).json({ message: err.message })
+  }
+})
+
 module.exports = router;

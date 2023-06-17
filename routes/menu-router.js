@@ -77,4 +77,35 @@ router.get('/', async (req, res) => {
   }
 });
 
+// 取得menu tree
+router.get('/menu/tree', async (req, res) => {
+  try {
+    const menuTree = await Menu.aggregate([
+      {
+        $graphLookup: {
+          from: "menus",
+          startWith: "$parentId",
+          connectFromField: "parentId",
+          connectToField: "_id",
+          as: "children"
+        }
+      },
+      {
+        $project: { 
+          _id: 1, 
+          parentId: 1, 
+          children: { 
+            _id: 1,
+            parentId: 1
+          }
+        }
+      }
+    ]);
+    return res.status(200).json(menuTree);
+  } catch (err) {
+    return res.status(500).json({ message: err.message });
+  }
+});
+
+
 module.exports = router;
