@@ -19,8 +19,7 @@ const MenuSchema = new Schema({
     required: true
   },
   parentId: {
-    type: Number,
-    required: true
+    type: Schema.Types.ObjectId
   },
 });
 

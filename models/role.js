@@ -7,9 +7,13 @@ const RoleSchema = new Schema({
     required: true
   },
   intro: {
-    type: Number,
+    type: String,
     required: true
-  }
+  },
+  menuList: [{
+      type: Schema.Types.ObjectId,
+      ref: 'Menu'
+  }]
 });
 
 module.exports = mongoose.model('Role', RoleSchema);

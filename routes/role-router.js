@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const Role = require('../models/role');  // 请将这行替换为你的Role模型的实际路径
+const Menu = require('../models/menu')
 
 // 这是一个用于获取角色的中间件
 async function getRole(req, res, next) {
@@ -82,13 +83,14 @@ router.get('/role/:id/menu', async (req, res) => {
       const menus = await Menu.find({ _id: { $in: role.menuList } })
       return res.status(200).json(menus)
   } catch(err) {
+      console.log(`Error: ${err.message}`);
       return res.status(500).json({ message: err.message })
   }
 })
 
 // Get menuIds by role id
 router.get('/role/:id/menuIds', async (req, res) => {
-  try {
+  try {   
       const role = await Role.findById(req.params.id)
       if (!role) return res.status(404).json({ message: "Role not found" })
       
@@ -108,7 +110,7 @@ router.post('/role/assign', async (req, res) => {
       if (!role) return res.status(404).json({ message: "Role not found" })
 
       // update menuList
-      role.menuList = menuList;
+      role.menuList.push(...menuList);
       await role.save();
 
       return res.status(200).json({ message: "Menu assigned successfully" })
