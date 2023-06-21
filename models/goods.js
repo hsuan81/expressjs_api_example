@@ -22,7 +22,7 @@ const GoodsSchema = new Schema({
     type: Number,
     required: true
   },
-  imageUrl: {
+  imgUrl: {
     type: String,
     required: true
   },

@@ -62,11 +62,6 @@ router.patch('/:id', getMenu, async (req, res) => {
   }
 });
 
-// 获取一个菜单
-router.get('/:id', getMenu, (req, res) => {
-  res.json(res.menu);
-});
-
 // 获取菜单列表 (fetch fixed amount of menus for a time)
 router.get('/', async (req, res) => {
   try {
@@ -78,7 +73,7 @@ router.get('/', async (req, res) => {
 });
 
 // 取得menu tree
-router.get('/menu/tree', async (req, res) => {
+router.get('/tree', async (req, res) => {
   try {
     const menuTree = await Menu.aggregate([
       {
@@ -87,14 +82,14 @@ router.get('/menu/tree', async (req, res) => {
           startWith: "$parentId",
           connectFromField: "parentId",
           connectToField: "_id",
-          as: "children"
+          as: "parents"
         }
       },
       {
         $project: { 
           _id: 1, 
           parentId: 1, 
-          children: { 
+          parents: { 
             _id: 1,
             parentId: 1
           }
@@ -105,6 +100,11 @@ router.get('/menu/tree', async (req, res) => {
   } catch (err) {
     return res.status(500).json({ message: err.message });
   }
+});
+
+// 获取一个菜单
+router.get('/:id', getMenu, (req, res) => {
+  res.json(res.menu);
 });
 
 

@@ -57,11 +57,6 @@ router.patch('/:id', getRole, async (req, res) => {
   }
 });
 
-// 获取一个角色
-router.get('/:id', getRole, (req, res) => {
-  res.json(res.role);
-});
-
 // 获取角色列表
 router.get('/list', async (req, res) => {
   const offset = Number(req.body.offset);
@@ -74,7 +69,12 @@ router.get('/list', async (req, res) => {
   }
 });
 
-router.get('/role/:id/menu', async (req, res) => {
+// 获取一个角色
+router.get('/:id', getRole, (req, res) => {
+  res.json(res.role);
+});
+
+router.get('/:id/menu', async (req, res) => {
   try {
       const role = await Role.findById(req.params.id)
       if (!role) return res.status(404).json({ message: "Role not found" })
@@ -89,7 +89,7 @@ router.get('/role/:id/menu', async (req, res) => {
 })
 
 // Get menuIds by role id
-router.get('/role/:id/menuIds', async (req, res) => {
+router.get('/:id/menuIds', async (req, res) => {
   try {   
       const role = await Role.findById(req.params.id)
       if (!role) return res.status(404).json({ message: "Role not found" })
@@ -103,7 +103,7 @@ router.get('/role/:id/menuIds', async (req, res) => {
 
 
 // Assign menus to role
-router.post('/role/assign', async (req, res) => {
+router.post('/assign', async (req, res) => {
   const { roleId, menuList } = req.body;
   try {
       const role = await Role.findById(roleId)
@@ -120,3 +120,4 @@ router.post('/role/assign', async (req, res) => {
 })
 
 module.exports = router;
+

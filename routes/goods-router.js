@@ -67,13 +67,8 @@ router.patch('/:id', getGoods, async (req, res) => {
   }
 });
 
-// 获取一个商品
-router.get('/:id', getGoods, (req, res) => {
-  res.json(res.goods);
-});
-
 // 获取商品列表
-router.get('/', async (req, res) => {
+router.get('/list', async (req, res) => {
   try {
     const goodsList = await Goods.find();
     res.json(goodsList);
@@ -81,5 +76,12 @@ router.get('/', async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 });
+
+// 获取一个商品
+router.get('/:id', getGoods, (req, res) => {
+  res.json(res.goods);
+});
+
+
 
 module.exports = router;

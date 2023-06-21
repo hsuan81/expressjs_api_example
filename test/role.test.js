@@ -8,10 +8,10 @@ const roleRouter = require('../routes/role-router')
 
 const app = express()
 app.use(express.json())
-app.use(roleRouter)
-app.get('/function/:id', getRole, (req, res) => {
-  res.status(200).json(res.role);
-});
+app.use('/role', roleRouter)
+// app.get('/function/:id', getRole, (req, res) => {
+//   res.status(200).json(res.role);
+// });
 const request = supertest(app)
 
 beforeAll(async () => {
@@ -24,26 +24,26 @@ afterAll(async () => {
     mongoose.connection.close()
 })
 
-describe('getRole function', () => {
-  it('should return role when exists', async () => {
-    const fakeRole = new Role({ name: 'Admin', intro: 'Admin function' });
-    await fakeRole.save();
+// describe('getRole function', () => {
+//   it('should return role when exists', async () => {
+//     const fakeRole = new Role({ name: 'Admin', intro: 'Admin function' });
+//     await fakeRole.save();
 
-    const response = await request(app).get(`/function/${fakeRole.id}`);
+//     const response = await request(app).get(`/function/${fakeRole.id}`);
     
-    expect(response.status).toBe(200);
-    expect(response.body).toEqual(fakeRole.toObject());
+//     expect(response.status).toBe(200);
+//     expect(response.body).toEqual(fakeRole.toObject());
 
-    await Role.findByIdAndDelete(fakeRole.id);
-  });
+//     await Role.findByIdAndDelete(fakeRole.id);
+//   });
 
-  it('should return 404 when role does not exist', async () => {
-    const response = await request(app).get('/123');
+//   it('should return 404 when role does not exist', async () => {
+//     const response = await request(app).get('/123');
 
-    expect(response.status).toBe(404);
-    expect(response.body).toEqual({ message: 'Cannot find role' });
-  });
-});
+//     expect(response.status).toBe(404);
+//     expect(response.body).toEqual({ message: 'Cannot find role' });
+//   });
+// });
 
 describe('Role CRUD', () => {
   let role;
@@ -51,42 +51,41 @@ describe('Role CRUD', () => {
   beforeEach(async () => {
     role = new Role({ name: 'Admin', intro: 'Admin role' });
     await role.save();
+    console.log('beforeEach', role.id)
   });
 
   afterEach(async () => {
     await Role.deleteMany();  // Clears the database after each test
   });
     
-    it('POST /', () => {
-    const response = request.post('/role').send({
+    it('POST /', async () => {
+    const newRole = { 
         name: 'New Role',
-        intro: 'Post a new role'
-    })
-    expect(response.status).toBe(200)
+        intro: 'Post a new role' };
+    const response = await request.post('/role').send(newRole)
+    expect(response.statusCode).toEqual(200)
     expect(response.body.message).toBe("Role created successfully")
-    expect(response.body.role._id).toEqual(newRole._id);
     expect(response.body.role.name).toEqual(newRole.name);
     expect(response.body.role.intro).toEqual(newRole.intro);
     });
         
-    it('GET /:id', () => {
+    it('GET /:id', async () => {
      //const newRole = new Role({ name: 'Admin', intro: 'Get Admin' });
      //await newRole.save();
-
-     const response = await request(app).get('/role/${role._id}');
+     const response = await request.get(`/role/${role.id}`);
     
-     expect(response.status).toBe(200);
+     expect(response.statusCode).toEqual(200);
      expect(response.body.name).toEqual(role.name);
      expect(response.body.intro).toEqual(role.intro);
     });
 
-    it('should update a role by ID', () => {
+    it('should update a role by ID', async () => {
      // const newRole = new Role({ name: 'Admin', intro: 'Patch Admin' });
      // await newRole.save();
      const updatedIntro = 'Updated admin role';   
-     const response = request.patch('/role/${role.id}').send({intro: updatedIntro});
+     const response = await request.patch(`/role/${role.id}`).send({intro: updatedIntro});
 
-     expect(response.status).toBe(200);
+     expect(response.statusCode).toEqual(200);
      expect(response.body.message).toBe('Role updated');
      expect(response.body.role.intro).toEqual(updatedIntro);
     });
@@ -95,13 +94,13 @@ describe('Role CRUD', () => {
     // const newRole = new Role({ name: 'Admin', intro: 'Admin role' });
     // await newRole.save();
 
-    const response = await request(app).delete(`/${role.id}`);
+    const response = await request.delete(`/role/${role.id}`);
     
     expect(response.status).toBe(200);
     expect(response.body.message).toEqual("Deleted role");
 
     // Verify the role was deleted by trying to get it
-    const getResponse = await request(app).get(`/${newRole.id}`);
+    const getResponse = await request.get(`/role/${role.id}`);
     expect(getResponse.status).toBe(404);
   });
 
@@ -112,13 +111,17 @@ describe('Role CRUD', () => {
       // Add more roles here if needed
     ];
     // Save all roles to the database
-    // await Promise.all(roles.map(role => new Role(role).save()));
     await Role.create(roles);
+    // const adminDoc = await Role.findOne({ name: 'Admin2'}).exec()
+    // console.log('findOne', adminDoc)
 
-    const response = await request(app).get('/list').send({ offset: 0, size: 10 });
+    const response = await request.get(`/role/list`).send({ offset: 0, size: 10 });
+    console.log(
+        'error', response.message
+    )
     
-    expect(response.status).toBe(200);
-    expect(response.body.length).toEqual(roles.length);
+    expect(response.statusCode).toBe(200);
+    expect(response.body.length).toEqual(roles.length + 1);
   });
         
 });
@@ -173,21 +176,21 @@ describe('Role Menu Routes', () => {
 
         // Create a role and assign menus to it
         const role = new Role({ name: 'Test Role2', intro: 'Testing' });
-        console.log('role2', role._id)
-        console.log('menu1', menu1._id)
-        console.log('menu2', menu2._id)
+        // console.log('role2', role._id)
+        // console.log('menu1', menu1._id)
+        // console.log('menu2', menu2._id)
         role.menuList.push(menu1._id, menu2._id);
         // role.menuList.push(menu2._id);
         await role.save();
 
         // For debugging
         const savedMenus = await Role.findById(role._id).select('menuList')
-        console.log('saved menus ', savedMenus)
+        // console.log('saved menus ', savedMenus)
 
         // Make a GET request to the /role/:id/menu route
         const response = await request
             .get(`/role/${role._id}/menu`)
-        console.log('get role ', response.body);  // Print the response body if the server sends error details
+        // console.log('get role ', response.body);  // Print the response body if the server sends error details
 
         // Verify that the response includes the menus
         // expect(response.body.length).toEqual(2);

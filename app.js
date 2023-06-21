@@ -10,7 +10,9 @@ const userRouters = require('./routes/user-router')
 const deptRouters = require('./routes/dept-router')
 const menuRouters = require('./routes/menu-router')
 const roleRouters = require('./routes/role-router')
-
+const categoryRouters = require('./routes/category-router')
+const goodsRouters = require('./routes/goods-router')
+const storyRouters = require('./routes/story-router')
 
 
 
@@ -27,7 +29,10 @@ app.use(express.json());
 app.use('/users', userRouters)
 app.use('/department', deptRouters)
 app.use('/menu', menuRouters)
-app.use('/role', menuRouters)
+app.use('/role', roleRouters)
+app.use('/category', categoryRouters)
+app.use('/goods', goodsRouters)
+app.use('/story', storyRouters)
 
 
 
