@@ -1,4 +1,26 @@
 const jwt = require('jsonwebtoken');
+const bcrypt = require('bcrypt')
+const saltRounds = 10
+
+function encryptPwd(pwd) {
+  bcrypt
+  .hash(password, saltRounds)
+  .then(hash => {
+    console.log('Hash ', hash)
+    return hash
+  })
+  .catch(err => console.error(err.message))
+}
+
+function validateUser(pwd, hashedPwd) {
+  bcrypt
+      .compare(pwd, hashedPwd)
+      .then(res => {
+        console.log(res) // return true
+        return res
+      })
+      .catch(err => console.error(err.message))    
+}
 
 function authenticateToken(req, res, next) {
   const authHeader = req.headers['authorization'];
@@ -32,4 +54,4 @@ function validateRefreshToken(refreshToken) {
     }
   }
 
-module.exports = { authenticateToken, validateRefreshToken };
+module.exports = { authenticateToken, validateRefreshToken, encryptPwd, validateUser };

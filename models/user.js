@@ -25,6 +25,9 @@ const UserSchema = new Schema({
   roleId: {
     type: Number,
     required: true
+  },
+  refreshToken: {
+    type: String
   }
 });
 

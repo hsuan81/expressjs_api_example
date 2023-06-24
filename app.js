@@ -13,6 +13,8 @@ const roleRouters = require('./routes/role-router')
 const categoryRouters = require('./routes/category-router')
 const goodsRouters = require('./routes/goods-router')
 const storyRouters = require('./routes/story-router')
+const authRouters = require('./routes/auth-router')
+const Auth = require('./middlewares/auth')
 
 
 
@@ -26,6 +28,7 @@ mongoose.connect('mongodb://127.0.0.1:27017/api', { useNewUrlParser: true, useUn
 
 // 使用 express.json 中間件解析請求體
 app.use(express.json());
+app.use('/auth', authRouters)
 app.use('/users', userRouters)
 app.use('/department', deptRouters)
 app.use('/menu', menuRouters)
@@ -36,40 +39,7 @@ app.use('/story', storyRouters)
 
 
 
-app.post('/login', (req, res) => {
-    // Assume you've received username and password from the request body,
-    // validate them against the database.
-    const username = req.body.username;
-    const user = { name: username };  // Mocked user object
-  
-    const accessToken = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, {expiresIn: "30m"});
-    const refreshToken = jwt.sign(user, process.env.REFRESH_TOKEN_SECRET, {expiresIn: "3d"});
-    res.json({ accessToken, refreshToken });
-});
 
-app.post('/refresh', async (req, res) => {
-    // 从请求中获取refreshToken
-    const refreshToken = req.body.token;
-    
-    // 检查refreshToken是否存在
-    if (!refreshToken) return res.status(403).send('Refresh token is required');
-  
-    // 验证refreshToken
-    jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET, (err, user) => {
-      if (err) return res.status(403).send('Invalid refresh token');
-  
-      // 如果refreshToken有效，创建并发送新的accessToken
-      const newAccessToken = jwt.sign({ userId: user._id }, process.env.ACCESS_TOKEN_SECRET, {
-        expiresIn: "30m"
-      });
-      res.json({ accessToken: newAccessToken });
-    });
-});
-  
-app.post('/logout', (req, res) => {
-    // Log the user out
-    // remove the accessToken in db
-});
 
   
 

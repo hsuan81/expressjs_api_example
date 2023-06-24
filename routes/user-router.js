@@ -17,10 +17,9 @@ router.get('/:id', getUser, (req, res) => {
 
 // router.post('/', Auth.authenticateToken, async (req, res) => {
 router.post('/', async (req, res) => {
-  
-  // 假設新用戶的 ID 是目前數據庫中的用戶數量加一
-  const user = new User(req.body)
   try {
+    const encrypted = Auth.encryptPwd(req.body.password)
+    const user = new User({password: encrypted, ...req.body})
     const savedUser = await user.save()
     res.status(201).json({id: savedUser._id, message: 'User created successfully'})
   } catch(err) {
