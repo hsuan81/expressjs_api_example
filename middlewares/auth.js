@@ -2,14 +2,12 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt')
 const saltRounds = 10
 
-function encryptPwd(pwd) {
-  bcrypt
-  .hash(password, saltRounds)
-  .then(hash => {
-    console.log('Hash ', hash)
+async function encryptPwd(pwd) {
+  try {
+    const hash = await bcrypt.hash(pwd, saltRounds)
     return hash
-  })
-  .catch(err => console.error(err.message))
+  } catch(err) {
+    err => console.error(err.message)}
 }
 
 function validateUser(pwd, hashedPwd) {
@@ -23,7 +21,7 @@ function validateUser(pwd, hashedPwd) {
 }
 
 function authenticateToken(req, res, next) {
-  const authHeader = req.headers['authorization'];
+  const authHeader = req.headers['Authorization'];
   const token = authHeader && authHeader.split(' ')[1];
 
   if (token == null) return res.sendStatus(401); // if there isn't any token

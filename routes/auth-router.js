@@ -1,10 +1,10 @@
 const express = require('express')
-const mongoose = require('mongoose')
+// const mongoose = require('mongoose')
 const router = express.Router()
 const User = require('../models/user')
 const Auth = require('../middlewares/auth')
 
-app.post('/login', async (req, res) => {
+router.post('/login', async (req, res) => {
     // Assume you've received username and password from the request body,
     // validate them against the database.
     const username = req.body.username;
@@ -26,7 +26,7 @@ app.post('/login', async (req, res) => {
     
 });
 
-app.post('/refresh', async (req, res) => {
+router.post('/refresh', async (req, res) => {
     // 从请求中获取refreshToken
     const refreshToken = req.body.token;
     
@@ -45,7 +45,7 @@ app.post('/refresh', async (req, res) => {
     });
 });
   
-app.post('/logout', async (req, res) => {
+router.post('/logout', async (req, res) => {
     const { refreshToken } = req.body;
     try {
         // Find user by refresh token
@@ -62,3 +62,5 @@ app.post('/logout', async (req, res) => {
     } catch (err) {
         res.status(500).json({ message: err.message });}
 });
+
+module.exports = router

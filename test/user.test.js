@@ -6,7 +6,7 @@ const request = supertest(app);
 
 const User = require('../models/user'); // 你的User model路径
 
-describe('User Model Test', () => {
+describe('User API Test', () => {
   // 在测试开始前清空测试数据库
    beforeEach(async () => {
     await User.deleteMany({});
@@ -18,18 +18,21 @@ describe('User Model Test', () => {
 
    it('POST /users/ should create a new user', async () => {
     const user = {
-      "name": "james",
-      "realname": "詹姆斯",
-      "password": "123456",
-      "cellphone": 13322223338,
-      "departmentId": 1,
-      "roleId": 1
+      name: "james",
+      realname: "詹姆斯",
+      password: "123456a",
+      cellphone: 13322223338,
+      departmentId: 1,
+      roleId: 1
     };
 
     // 创建用户
-    const response = await request.post('/users').send(user);
+    const response = await request.post('/users/').send(user);
+    console.log(response.body.id)
     expect(response.status).toBe(201);
     expect(response.body.message).toBe('User created successfully');
+    const savedUser = await User.findById(response.body.id, 'password').exec()
+    expect(savedUser.password).toEqual(expect.not.stringMatching(user.password))
 
     // 获取用户确保其已被创建
     const createdUserResponse = await request.get(`/users/${response.body.id}`);
@@ -68,9 +71,10 @@ describe('User Model Test', () => {
           "departmentId": 1,
           "roleId": 2
         });
-        // console.log(newUser.body.id)
+        console.log(newUser.body)
     
-        const response = await request.delete(`/users/${newUser.body.id}`);
+        const response = await request.delete(`/users/${newUser.body.id}`)
+        //.set('Authorization', 'Bearer ' + token);
     
         expect(response.status).toBe(200);
         expect(response.body.message).toBe('Deleted user');

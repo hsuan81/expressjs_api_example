@@ -18,8 +18,15 @@ router.get('/:id', getUser, (req, res) => {
 // router.post('/', Auth.authenticateToken, async (req, res) => {
 router.post('/', async (req, res) => {
   try {
-    const encrypted = Auth.encryptPwd(req.body.password)
-    const user = new User({password: encrypted, ...req.body})
+    console.log('req', req.body.password)
+    const encrypted = await Auth.encryptPwd(req.body.password)
+    console.log('encrypted in promise', encrypted)
+    
+    console.log('encrypted', encrypted)//
+    req.body.password = encrypted
+    const user = new User(req.body)
+    // const user = new User({password: encrypted, ...req.body})
+    console.log('user', user)
     const savedUser = await user.save()
     res.status(201).json({id: savedUser._id, message: 'User created successfully'})
   } catch(err) {
@@ -27,7 +34,8 @@ router.post('/', async (req, res) => {
   }
 });
 
-router.delete('/:id', Auth.authenticateToken, getUser, async(req, res) => {
+// router.delete('/:id', Auth.authenticateToken, getUser, async(req, res) => {
+router.delete('/:id', getUser, async(req, res) => {
     try {
       await res.user.deleteOne({id: req.body.id})
       res.json({ message: 'Deleted user' })
