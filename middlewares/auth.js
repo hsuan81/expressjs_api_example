@@ -10,14 +10,14 @@ async function encryptPwd(pwd) {
     err => console.error(err.message)}
 }
 
-function validateUser(pwd, hashedPwd) {
-  bcrypt
-      .compare(pwd, hashedPwd)
-      .then(res => {
-        console.log(res) // return true
-        return res
-      })
-      .catch(err => console.error(err.message))    
+async function validateUser(pwd, hashedPwd) {
+  console.log('pwd', pwd)
+  console.log('hashed', hashedPwd)
+  try {
+    const result = await bcrypt.compare(pwd, hashedPwd)
+      console.log(result) // return true
+      return result
+    } catch(err) {err => console.error(err.message)}
 }
 
 function authenticateToken(req, res, next) {

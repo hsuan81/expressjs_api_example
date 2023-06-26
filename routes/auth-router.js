@@ -1,26 +1,41 @@
+require('dotenv').config()
 const express = require('express')
-// const mongoose = require('mongoose')
 const router = express.Router()
 const User = require('../models/user')
 const Auth = require('../middlewares/auth')
+const jwt = require('jsonwebtoken')
+
 
 router.post('/login', async (req, res) => {
     // Assume you've received username and password from the request body,
     // validate them against the database.
     const username = req.body.username;
+    console.log(req.body.username)
     // const user = { name: username };  // Mocked user object
     try {
-        const hashed = await User.findOne({ name: username }, 'password').exec()
-        const validated = Auth.validateUser(req.body.password, hashed)
+        const user = await User.findOne({ name: username }).exec()
+        const hashed = user ? user.password : null;
+        const validated = hashed ? await Auth.validateUser(req.body.password, hashed) : false;
+        console.log('validated', validated)
+        const payload = {}
+
+        // const hashed = await User.findOne({ name: username }, 'password').exec()
+        // const validated = Auth.validateUser(req.body.password, hashed)
         if (validated) {
-            const accessToken = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, {expiresIn: "30m"});
-            const refreshToken = jwt.sign(user, process.env.REFRESH_TOKEN_SECRET, {expiresIn: "3d"});
+            const payload = { username: username }; // Create a payload with the username
+            const accessToken = jwt.sign(payload, process.env.ACCESS_TOKEN_SECRET, {expiresIn: "300s"});
+            console.log('access', accessToken)
+            const refreshToken = jwt.sign(payload, process.env.REFRESH_TOKEN_SECRET, {expiresIn: "3d"});
+            // Store refresh token into db
+            const updatedUser = User.findOneAndUpdate({id: user.id}, {refreshToken}, { new: true })
+            console.log('refresh', refreshToken)
             res.status(200).json({ accessToken, refreshToken });
         } else {
             res.status(400).json({ message: "Invalid username or password" })
         }
 
     } catch (err) {
+        console.log(err)
         res.status(500).json({ message: err.message })
     }
     
@@ -39,6 +54,9 @@ router.post('/refresh', async (req, res) => {
   
       // 如果refreshToken有效，创建并发送新的accessToken
       const newAccessToken = jwt.sign({ userId: user._id }, process.env.ACCESS_TOKEN_SECRET, {
+        expiresIn: "30m"
+      });
+      const newRefreshToken = jwt.sign({ userId: user._id }, process.env.ACCESS_TOKEN_SECRET, {
         expiresIn: "30m"
       });
       res.json({ accessToken: newAccessToken });
