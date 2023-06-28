@@ -24,10 +24,10 @@ router.post('/login', async (req, res) => {
         if (validated) {
             const payload = { username: username }; // Create a payload with the username
             const accessToken = jwt.sign(payload, process.env.ACCESS_TOKEN_SECRET, {expiresIn: "300s"});
-            console.log('access', accessToken)
             const refreshToken = jwt.sign(payload, process.env.REFRESH_TOKEN_SECRET, {expiresIn: "3d"});
             // Store refresh token into db
-            const updatedUser = User.findOneAndUpdate({id: user.id}, {refreshToken}, { new: true })
+            const updatedUser = await User.findByIdAndUpdate(user.id, { refreshToken: refreshToken }, { new: true })
+            console.log('login refresh', updatedUser)
             console.log('refresh', refreshToken)
             res.status(200).json({ accessToken, refreshToken });
         } else {
@@ -51,14 +51,14 @@ router.post('/refresh', async (req, res) => {
     // 验证refreshToken
     jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET, (err, user) => {
       if (err) return res.status(403).send('Invalid refresh token');
-  
+      console.log(user.username)
       // 如果refreshToken有效，创建并发送新的accessToken
-      const newAccessToken = jwt.sign({ userId: user._id }, process.env.ACCESS_TOKEN_SECRET, {
-        expiresIn: "30m"
+      const newAccessToken = jwt.sign({ username: user.username }, process.env.ACCESS_TOKEN_SECRET, {
+        expiresIn: "300s"
       });
-      const newRefreshToken = jwt.sign({ userId: user._id }, process.env.ACCESS_TOKEN_SECRET, {
-        expiresIn: "30m"
-      });
+    //   const newRefreshToken = jwt.sign({ userId: user._id }, process.env.ACCESS_TOKEN_SECRET, {
+    //     expiresIn: "30m"
+    //   });
       res.json({ accessToken: newAccessToken });
     });
 });
@@ -67,8 +67,9 @@ router.post('/logout', async (req, res) => {
     const { refreshToken } = req.body;
     try {
         // Find user by refresh token
-        const user = await User.findOne({ refreshToken });
+        const user = await User.findOne({ refreshToken }).exec();
         if (!user) {
+        console.log('logout', user)
         return res.status(400).json({ message: 'Invalid refresh token' });
         }
 
