@@ -1,23 +1,10 @@
 require('dotenv').config()
 const request = require('supertest');
 const app = require('../app'); // 你的app.js或者server.js路径
-const User = require('../models/user'); // 你的User model路径
+const User = require('../models/user'); 
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 
-// beforeAll(async () => {
-//     // Connect to DB before testing
-//     await mongoose.connect(process.env.DATABASE_URL, { useNewUrlParser: true, useUnifiedTopology: true })
-// })
-
-// afterAll(async () => {
-//     // Cut off the connection to the DB after testing finished
-//     mongoose.connection.close()
-// })
-
-// create a user with password 123456a
-// test for login
-// test for logout
 
 describe('Authentication API Test', () => {
   let testUser;
