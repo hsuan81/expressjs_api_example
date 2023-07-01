@@ -2,6 +2,7 @@ const express = require('express')
 const router = express.Router()
 const Story = require('../models/story')
 
+
 router.post('/', async (req, res) => {
     try {
         const story = new Story({

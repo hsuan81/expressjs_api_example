@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const Menu = require('../models/menu');  // 请将这行替换为你的Menu模型的实际路径
 
+
 // 这是一个用于获取菜单的中间件
 async function getMenu(req, res, next) {
   let menu;

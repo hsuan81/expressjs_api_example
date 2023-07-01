@@ -3,7 +3,6 @@ const router = express.Router();
 const Dept = require('../models/dept')
 const Auth = require('../middlewares/auth')
 
-
 // router.get('/:id', Auth.authenticateToken, getUser, (req, res) => {
 router.get('/:id', getDept, (req, res) => {
   try {

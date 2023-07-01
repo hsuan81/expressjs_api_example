@@ -29,13 +29,13 @@ mongoose.connect('mongodb://127.0.0.1:27017/api', { useNewUrlParser: true, useUn
 // 使用 express.json 中間件解析請求體
 app.use(express.json());
 app.use('/auth', authRouters)
-app.use('/users', userRouters)
-app.use('/department', deptRouters)
-app.use('/menu', menuRouters)
-app.use('/role', roleRouters)
-app.use('/category', categoryRouters)
-app.use('/goods', goodsRouters)
-app.use('/story', storyRouters)
+app.use('/users', Auth.authenticateToken, userRouters)
+app.use('/department', Auth.authenticateToken, deptRouters)
+app.use('/menu', Auth.authenticateToken, menuRouters)
+app.use('/role', Auth.authenticateToken, roleRouters)
+app.use('/category', Auth.authenticateToken, categoryRouters)
+app.use('/goods', Auth.authenticateToken, goodsRouters)
+app.use('/story', Auth.authenticateToken, storyRouters)
 
 
 
