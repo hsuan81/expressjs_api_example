@@ -7,8 +7,9 @@ const Auth = require('../middlewares/auth')
 // router.get('/:id', Auth.authenticateToken, getUser, (req, res) => {
 router.get('/:id', getDept, (req, res) => {
   try {
-    res.json(res.user)
-  } catch (error) {
+    res.json(res.dept)
+  } catch (err) {
+    console.log(err.message)
     res.status(500).json({message: err.message})
   }
     
@@ -44,6 +45,17 @@ router.delete('/:id', getDept, async(req, res) => {
 router.patch('/:id', getDept, async (req, res) => {
 
   try {
+    // Retrieve names of all properties of Dept schema
+    const fields = Object.keys(Dept.schema.paths);
+
+    // Check every property to be updated existent in the schema
+    for (let key in req.body) {
+      if (!fields.includes(key)) {
+        // 如果一个属性不存在于模型的字段中，返回一个错误
+        return res.status(400).json({ message: `Invalid property: ${key}` });
+      }
+    }
+
     // Create a new object that only includes non-null properties from req.body
     const updates = Object.entries(req.body).reduce((a, [k, v]) => (v == null ? a : { ...a, [k]: v }), {});
 
@@ -52,7 +64,7 @@ router.patch('/:id', getDept, async (req, res) => {
     const updatedDept = await res.dept.save();
     res.json({ id: req.params.id, message: 'Department updated successfully' });
   } catch (err) {
-    res.status(400).json({ message: err.message });
+    res.status(500).json({ message: err.message });
   }
 });
 
