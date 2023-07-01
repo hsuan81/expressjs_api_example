@@ -1,14 +1,21 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
+// function requiredAllowEmptyString (field) {
+//   return typeof this.field === 'string'? false : true
+// }
+
 const UserSchema = new Schema({
   name: {
     type: String,
-    required: true
+    required: true,
+    unique: true
   },
   realname: {
     type: String,
-    required: true
+    required: function() {
+      typeof this.realname === 'string'? false : true
+    }
   },
   password: {
     type: String,
@@ -16,7 +23,7 @@ const UserSchema = new Schema({
   },
   cellphone: {
     type: Number,
-    required: true
+    required: true,
   },
   departmentId: {
     type: Number,

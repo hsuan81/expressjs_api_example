@@ -27,6 +27,29 @@ describe('Authentication API Test', () => {
     await User.deleteMany({});
   });
 
+  test('POST /auth/register - success', async () => {
+    const user = {
+        username: 'registerUser',
+        password: 'testpassword'
+      };
+  
+    const response = await request(app)
+      .post('/auth/register')
+      .send(user);
+
+    expect(response.statusCode).toBe(201);
+    expect(response.body.message).toEqual('User created successfully')
+    expect(response.body).toHaveProperty('id');
+    expect(response.body).toHaveProperty('username', 'registerUser');
+
+    const createdUser = await User.findById(response.body.id);
+    expect(createdUser).not.toBeNull();
+    expect(createdUser.name).toBe(user.username);
+
+    // Check if the password is hashed
+    expect(createdUser.password).not.toBe(user.password);
+  });
+
   test('POST /auth/login - success', async () => {
     const response = await request(app)
       .post('/auth/login')

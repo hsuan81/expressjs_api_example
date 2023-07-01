@@ -1,6 +1,9 @@
 const express = require('express')
 const router = express.Router()
 const Category = require('../models/category')
+const { authenticateToken } = require('../middlewares/auth')
+
+router.use(authenticateToken)
 
 async function getCategory(req, res, next) {
     let category

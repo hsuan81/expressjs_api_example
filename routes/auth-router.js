@@ -5,6 +5,39 @@ const User = require('../models/user')
 const Auth = require('../middlewares/auth')
 const jwt = require('jsonwebtoken')
 
+router.post('/register', async (req, res) => {
+    const username = req.body.username;
+    const password = req.body.password;
+  
+    try {
+      // Check if the user already exists
+      const existingUser = await User.findOne({ name: username }).exec();
+      if (existingUser) {
+        return res.status(400).json({ message: 'Username already exists' });
+      }
+  
+      // Encrypt the password
+      const hashedPassword = await Auth.encryptPwd(password);
+  
+      // Create a new user
+      const user = new User({
+        name: username,
+        password: hashedPassword,
+        realname: '',
+        cellphone: 0,
+        departmentId: 0,
+        roleId: 0
+      });
+  
+      // Save the user
+      const savedUser = await user.save();
+  
+      res.status(201).json({ message: 'User created successfully', id: savedUser._id, username: savedUser.name });
+    } catch (err) {
+      res.status(500).json({ message: err.message });
+    }
+});
+  
 
 router.post('/login', async (req, res) => {
     // Assume you've received username and password from the request body,
@@ -16,7 +49,6 @@ router.post('/login', async (req, res) => {
         const user = await User.findOne({ name: username }).exec()
         const hashed = user ? user.password : null;
         const validated = hashed ? await Auth.validateUser(req.body.password, hashed) : false;
-        console.log('validated', validated)
         const payload = {}
 
         // const hashed = await User.findOne({ name: username }, 'password').exec()
@@ -27,15 +59,12 @@ router.post('/login', async (req, res) => {
             const refreshToken = jwt.sign(payload, process.env.REFRESH_TOKEN_SECRET, {expiresIn: "3d"});
             // Store refresh token into db
             const updatedUser = await User.findByIdAndUpdate(user.id, { refreshToken: refreshToken }, { new: true })
-            console.log('login refresh', updatedUser)
-            console.log('refresh', refreshToken)
             res.status(200).json({ accessToken, refreshToken });
         } else {
             res.status(400).json({ message: "Invalid username or password" })
         }
 
     } catch (err) {
-        console.log(err)
         res.status(500).json({ message: err.message })
     }
     
@@ -51,7 +80,7 @@ router.post('/refresh', async (req, res) => {
     // 验证refreshToken
     jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET, (err, user) => {
       if (err) return res.status(403).send('Invalid refresh token');
-      console.log(user.username)
+      
       // 如果refreshToken有效，创建并发送新的accessToken
       const newAccessToken = jwt.sign({ username: user.username }, process.env.ACCESS_TOKEN_SECRET, {
         expiresIn: "300s"
@@ -69,7 +98,6 @@ router.post('/logout', async (req, res) => {
         // Find user by refresh token
         const user = await User.findOne({ refreshToken }).exec();
         if (!user) {
-        console.log('logout', user)
         return res.status(400).json({ message: 'Invalid refresh token' });
         }
 
